@@ -38,6 +38,10 @@ exports.instanceReportChart = async function (data, reportType = "") {
             }
         }
 
+        if (data[0].event.completedDate) {
+            response["completedDate"] = data[0].event.completedDate;
+        }
+
 
         await Promise.all(data.map(async element => {
 
@@ -249,6 +253,16 @@ exports.entityReportChart = async function (data, entityId, entityType, reportTy
                 districtName: data[0].event.districtName,
                 programName: data[0].event.programName,
                 reportSections: []
+            }
+        }
+
+        if (data[0].event.completedDate) {
+            response["completedDate"] = data[0].event.completedDate;
+        }
+
+        if (response.completedDate) {
+            if (new Date(element.event.completedDate) > new Date(response.completedDate)) {
+                response.completedDate = element.event.completedDate;
             }
         }
 
