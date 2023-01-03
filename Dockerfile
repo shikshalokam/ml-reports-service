@@ -1,9 +1,9 @@
 FROM node:12
 
-WORKDIR /opt/reports
+WORKDIR /usr/src/app
 
 #copy package.json file
-COPY package.json /opt/reports
+COPY package.json ./
 
 #install fonts
 RUN apt update && apt install fonts-indic -y \
@@ -13,10 +13,10 @@ RUN apt update && apt install fonts-indic -y \
 RUN npm install
 
 #copy all files 
-COPY . /opt/reports
+COPY . .
 
 #expose the application port
-EXPOSE 3000
+EXPOSE 3003
 
 #start the application
 CMD node app.js
