@@ -54,7 +54,12 @@ exports.getDistricts = async function(req,res){
             let data = await rp(options);
             if(data){
                 const typeOfId = req.query.resourceType == ResourceType.SOLUTION ? "district_externalId" : "district_id"
-                const result = data.map(district => ({ id: district.event[typeOfId] , name: district.event.district_name }));
+                let result = data.map(district => ({ id: district.event[typeOfId] , name: district.event.district_name }));
+                // send district with unique id. If more than one district have same id will send the last one in the list
+                result = Object.values(result.reduce((map, district) => {
+                    map[district.id] = district;
+                    return map;
+                }, {}));
                 resolve(result)
             }
         }catch(err){
