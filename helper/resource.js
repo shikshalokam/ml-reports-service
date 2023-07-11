@@ -51,10 +51,13 @@ exports.getDistricts = async function(req,res){
             let options = gen.utils.getDruidConnection();
             options.method = "POST";
             options.body = bodyParam;
+            console.log(JSON.stringify(bodyParam))
             let data = await rp(options);
             if(data){
                 const typeOfId = req.query.resourceType == ResourceType.SOLUTION ? "district_externalId" : "district_id"
-                const result = data.map(district => ({ id: district.event[typeOfId] , name: district.event.district_name }));
+                let result = data.map(district => ({ id: district.event[typeOfId] , name: district.event.district_name }));
+                // send district with unique id. If more than one district have same id will send the last one in the list
+                result  = await utils.filterForUniqueData(result,"id")
                 resolve(result)
             }
         }catch(err){
@@ -83,7 +86,9 @@ exports.getOrganisations = async function(req,res){
             options.body = bodyParam;
             let data = await rp(options);
             if(data){
-                const result = data.map(organisation => ({ id: organisation.event.organisation_id, name: organisation.event.organisation_name }));
+                let result = data.map(organisation => ({ id: organisation.event.organisation_id, name: organisation.event.organisation_name }));
+                // send organisation with unique id. If more than one organisation have same id will send the last one in the list
+                result  = await utils.filterForUniqueData(result,"id")
                 resolve(result)
             }
         }catch(err){
@@ -120,7 +125,9 @@ exports.getBlocks = async function(req,res){
             let data = await rp(options);
             if(data){
                 const typeOfId = req.query.resourceType == ResourceType.SOLUTION ? "block_externalId" : "block_id"
-                const result = data.map(block => ({ id: block.event[typeOfId] , name: block.event.block_name }));
+                let result = data.map(block => ({ id: block.event[typeOfId] , name: block.event.block_name }));
+                // send blocks with unique id. If more than one block have same id will send the last one in the list
+                result  = await utils.filterForUniqueData(result,"id")
                 resolve(result)
             }
         }catch(err){
