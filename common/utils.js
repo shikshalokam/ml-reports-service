@@ -132,6 +132,48 @@ function getIntervalFilter () {
   const interval = previousDate + "T00:00:00+00:00/" + currentDate + "T00:00:00+00:00";
   return interval;
 }
+/**
+  * Returns Filtered data based on key passed
+  * @function
+  * @name filterForUniqueData
+  * @param {Array} data - Array of objects
+  * @param {String} key - object key based on which data is filtered
+  * @returns {Array}  with unique element based on key passed  
+  * sample of {data} param
+  * [
+      {
+         "version":"v1",
+         "timestamp":"2023-07-10T00:00:00.000Z",
+         "event":{
+            "district_name":"ANANTAPUR",
+            "district_externalId":"2f76dcf5-e43b-4f71-a3f2-c8f19e1fce03"
+         }
+      },
+      {
+         "version":"v1",
+         "timestamp":"2023-07-10T00:00:00.000Z",
+         "event":{
+            "district_name":"Ananthapuram",
+            "district_externalId":"2f76dcf5-e43b-4f71-a3f2-c8f19e1fce03"
+         }
+      },
+      {
+         "version":"v1",
+         "timestamp":"2023-07-10T00:00:00.000Z",
+         "event":{
+            "district_name":"CHITTOOR",
+            "district_externalId":"b5c35cfc-6c1e-4266-94ef-a425c43c7f4e"
+         }
+      }
+   ]
+*/
+function filterForUniqueData (data, key) {
+  let result = Object.values(data.reduce((map, element) => {
+    map[element[key]] = element;
+    return map;
+  }, {}));
+  return result
+}
 
 module.exports = {
   getDruidQuery: getDruidQuery,
@@ -140,5 +182,6 @@ module.exports = {
   getDruidIntervalDate: getDruidIntervalDate,
   getDataSourceName: getDataSourceName,
   getResourceFilter:getResourceFilter,
-  getIntervalFilter:getIntervalFilter
+  getIntervalFilter:getIntervalFilter,
+  filterForUniqueData:filterForUniqueData
 }
