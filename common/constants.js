@@ -32,3 +32,10 @@ exports.SolutionType = {
     OBSERVATION: "observation",
     SURVEY :"survey"
 }
+
+/**
+ * Description : druid query interval for raw data-source
+ */
+exports.druidQueryInterval = {
+    RAW_DATA_SOURCE_INTERVAL : "1901-01-01T00:00+00:00/2101-01-01T00:00:00+00:00",
+}

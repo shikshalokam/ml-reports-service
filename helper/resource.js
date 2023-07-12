@@ -47,15 +47,15 @@ exports.getDistricts = async function(req,res){
             const resourceFilter = await utils.getResourceFilter(req.query)
             bodyParam.filter.fields.push(resourceFilter)
             //Gets Interval filter from previous Date to current Date "2023-05-11T00:00:00+00:00/2023-05-12T00:00:00+00:00"
-            bodyParam.intervals = await utils.getIntervalFilter()
+            //If a raw data source is passed the interval will be "1901-01-01T00:00+00:00/2101-01-01T00:00:00+00:00"
+            bodyParam.intervals = await utils.getIntervalFilter(bodyParam.dataSource)
             let options = gen.utils.getDruidConnection();
             options.method = "POST";
             options.body = bodyParam;
             console.log(JSON.stringify(bodyParam))
             let data = await rp(options);
             if(data){
-                const typeOfId = req.query.resourceType == ResourceType.SOLUTION ? "district_externalId" : "district_id"
-                let result = data.map(district => ({ id: district.event[typeOfId] , name: district.event.district_name }));
+                let result = data.map(district => ({ id: district.event["district_externalId"] , name: district.event.district_name }));
                 // send district with unique id. If more than one district have same id will send the last one in the list
                 result  = await utils.filterForUniqueData(result,"id")
                 resolve(result)
@@ -80,7 +80,8 @@ exports.getOrganisations = async function(req,res){
             const resourceFilter = await utils.getResourceFilter(req.query)
             bodyParam.filter.fields.push(resourceFilter)
             //Gets Interval filter from previous Date to current Date "2023-05-11T00:00:00+00:00/2023-05-12T00:00:00+00:00"
-            bodyParam.intervals = await utils.getIntervalFilter()
+            //If a raw data source is passed the interval will be "1901-01-01T00:00+00:00/2101-01-01T00:00:00+00:00"
+            bodyParam.intervals = await utils.getIntervalFilter(bodyParam.dataSource)
             let options = gen.utils.getDruidConnection();
             options.method = "POST";
             options.body = bodyParam;
@@ -111,11 +112,12 @@ exports.getBlocks = async function(req,res){
             //Gets Resource filter based on Resource type
             const resourceFilter = await utils.getResourceFilter(req.query)
             bodyParam.filter.fields.push(resourceFilter)
-            //Gets Interval filter from previous Date to current Date "2023-05-11T00:00:00+00:00/2023-05-12T00:00:00+00:00"
-            bodyParam.intervals = await utils.getIntervalFilter()
+            //Gets Interval filter from previous Date to current Date "2023-05-11T00:00:00+00:00/2023-05-12T00:00:00+00:00" (for aggregate datasource)
+            //If a raw data source is passed the interval will be "1901-01-01T00:00+00:00/2101-01-01T00:00:00+00:00"
+            bodyParam.intervals = await utils.getIntervalFilter(bodyParam.dataSource)
             const districtFilter = {
                 type: "selector",
-                dimension: req.query.resourceType == ResourceType.SOLUTION ?  "district_externalId" : "district_id",
+                dimension: "district_externalId",
                 value: req.body.query.districtLocationId
             }
             bodyParam.filter.fields.push(districtFilter)
@@ -124,8 +126,7 @@ exports.getBlocks = async function(req,res){
             options.body = bodyParam;
             let data = await rp(options);
             if(data){
-                const typeOfId = req.query.resourceType == ResourceType.SOLUTION ? "block_externalId" : "block_id"
-                let result = data.map(block => ({ id: block.event[typeOfId] , name: block.event.block_name }));
+                let result = data.map(block => ({ id: block.event["block_externalId"] , name: block.event.block_name }));
                 // send blocks with unique id. If more than one block have same id will send the last one in the list
                 result  = await utils.filterForUniqueData(result,"id")
                 resolve(result)
