@@ -122,14 +122,14 @@ function getResourceFilter (query) {
   * Returns interval for druid query from previous Date to current Date
   * @function
   * @name getIntervalFilter
-  * @param dataSoure name
+  * @param dataSource name
   * @returns {String}  returns interval filter "2023-05-11T00:00:00+00:00/2023-05-12T00:00:00+00:00"
 */
-function getIntervalFilter (dataSoure = "") {
+function getIntervalFilter (dataSource = "") {
   let interval;
-  if (dataSoure !== "" &&
-    dataSoure === process.env.PROGRAM_RESOURCE_DATASOURCE_NAME ||
-    dataSoure === process.env.SURVEY_RESOURCE_DATASOURCE_NAME
+  if (dataSource !== "" &&
+    dataSource === process.env.PROGRAM_RESOURCE_DATASOURCE_NAME ||
+    dataSource === process.env.SURVEY_RESOURCE_DATASOURCE_NAME
   ) {
     //Add interval for raw datasource
     interval = druidQueryInterval.RAW_DATA_SOURCE_INTERVAL;
