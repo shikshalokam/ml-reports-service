@@ -1,5 +1,5 @@
 const druidQueries = require('./druid_queries.json');
-const { ResourceType, SolutionType } = require("./constants");
+const { ResourceType, SolutionType, druidQueryInterval } = require("./constants");
 /**
   * Return druid query for the given query name
   * @function
@@ -122,14 +122,24 @@ function getResourceFilter (query) {
   * Returns interval for druid query from previous Date to current Date
   * @function
   * @name getIntervalFilter
+  * @param dataSource name
   * @returns {String}  returns interval filter "2023-05-11T00:00:00+00:00/2023-05-12T00:00:00+00:00"
 */
-function getIntervalFilter () {
-  const date = new Date();
-  const currentDate = date.toISOString().split("T")[0];
-  date.setDate(date.getDate() - 1);
-  const previousDate = date.toISOString().split("T")[0];
-  const interval = previousDate + "T00:00:00+00:00/" + currentDate + "T00:00:00+00:00";
+function getIntervalFilter (dataSource = "") {
+  let interval;
+  if (dataSource !== "" &&
+    dataSource === process.env.PROGRAM_RESOURCE_DATASOURCE_NAME ||
+    dataSource === process.env.SURVEY_RESOURCE_DATASOURCE_NAME
+  ) {
+    //Add interval for raw datasource
+    interval = druidQueryInterval.RAW_DATA_SOURCE_INTERVAL;
+  } else {
+    const date = new Date();
+    const currentDate = date.toISOString().split("T")[0];
+    date.setDate(date.getDate() - 1);
+    const previousDate = date.toISOString().split("T")[0];
+    interval = previousDate + "T00:00:00+00:00/" + currentDate + "T00:00:00+00:00";
+  }
   return interval;
 }
 /**

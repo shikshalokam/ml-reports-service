@@ -81,9 +81,9 @@
 
     "solution_block_level_query": {"queryType": "groupBy","dataSource": "","dimensions": ["block_externalId", "block_name"],"granularity": "all","intervals": "","filter": {"type": "and","fields": [{"type": "not","field": {"type": "selector","dimension": "block_externalId","value": null}}]}},
 
-    "program_distric_level_query": {"queryType": "groupBy","dataSource": "","dimensions": ["district_name", "district_id"],"granularity": "all","intervals": "","filter": {"type": "and","fields": [{"type": "not","field": {"type": "selector","dimension": "district_id","value": null}}]}},
+    "program_distric_level_query": {"queryType": "groupBy","dataSource": "","dimensions": ["district_name", "district_externalId"],"granularity": "all","intervals": "","filter": {"type": "and","fields": [{"type": "not","field": {"type": "selector","dimension": "district_externalId","value": null}}]}},
 
     "program_organisations_level_query": {"queryType": "groupBy","dataSource": "","dimensions": ["organisation_id", "organisation_name"],"granularity": "all","intervals": "","filter": {"type": "and","fields": [{"type": "not","field": {"type": "selector","dimension": "organisation_id","value": null}}]}},
 
-    "program_block_level_query": {"queryType": "groupBy","dataSource": "","dimensions": ["block_id", "block_name"],"granularity": "all","intervals": "","filter": {"type": "and","fields": [{"type": "not","field": {"type": "selector","dimension": "block_id","value": null}}]}}
+    "program_block_level_query": {"queryType": "groupBy","dataSource": "","dimensions": ["block_externalId", "block_name"],"granularity": "all","intervals": "","filter": {"type": "and","fields": [{"type": "not","field": {"type": "selector","dimension": "block_externalId","value": null}}]}}
 }
