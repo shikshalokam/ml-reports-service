@@ -264,7 +264,7 @@
         
         <div class="row" >
             <div class="titleDiv">
-                <p class="title">Categories :</p>
+                <p class="title">Categories : </p>
             </div>
             <% if ( data.response.category.length > 0 ) { %>
                 <% let categoryValues = ""%>
@@ -272,7 +272,7 @@
                     <% if(categoryValues == "") { %>
                         <% categoryValues = category  %>
                     <%} else {%>
-                        <% categoryValues = categoryValues + " , " + category  %>
+                        <% categoryValues = categoryValues + ", " + category  %>
                     <%}%>
                 <%})%>
                 <div class = "titleData">
