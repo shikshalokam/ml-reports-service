@@ -697,13 +697,13 @@ exports.instanceCriteriaReportData = async function (req, res) {
                 }
 
                 bodyParam.filter = {
-                    "type": "and", "fields": [{ "type": "selector", "dimension": "observationSubmissionId", "value": submissionId },
+                    "type": "and", "fields": [{ "type": "selector", "dimension": "observationSubmissionId", "value": submissionId.replace(/[^a-zA-Z0-9_-]/g, '') },
                     { "type": "not", "field": { "type": "selector", "dimension": "questionAnswer", "value": "" } }]
                 };
 
                 //if filter is given
                 if (req.body.filter && req.body.filter.criteria && req.body.filter.criteria.length > 0) {
-                    bodyParam.filter.fields.push({ "type": "in", "dimension": "criteriaId", "values": req.body.filter.criteria });
+                    bodyParam.filter.fields.push({ "type": "in", "dimension": "criteriaId", "values": req.body.filter.criteria});
                 }
 
                 //pass the query as body param and get the resul from druid
@@ -1091,14 +1091,14 @@ exports.observationCriteriaReportData = async function(req, res) {
                 }
 
                 bodyParam.filter = {
-                    "type": "and", "fields": [{ "type": "selector", "dimension": "observationId", "value": req.body.observationId },
+                    "type": "and", "fields": [{ "type": "selector", "dimension": "observationId", "value": req.body.observationId.replace(/[^a-zA-Z0-9_-]/g, '') },
                     { "type": "not", "field": { "type": "selector", "dimension": "questionAnswer", "value": "" } }]
                 };
 
 
                 //if filter is given
                 if (req.body.filter && req.body.filter.criteria && req.body.filter.criteria.length > 0) {
-                    bodyParam.filter.fields.push({ "type": "in", "dimension": "criteriaId", "values": req.body.filter.criteria });
+                    bodyParam.filter.fields.push({ "type": "in", "dimension": "criteriaId", "values": req.body.filter.criteria});
                 }
 
                 //pass the query as body param and get the resul from druid
@@ -1485,11 +1485,11 @@ async function getEvidenceData(inputObj) {
             let filter = {};
 
             if (submissionId) {
-                filter = { "type": "selector", "dimension": "observationSubmissionId", "value": submissionId }
+                filter = { "type": "selector", "dimension": "observationSubmissionId", "value": submissionId.replace(/[^a-zA-Z0-9_-]/g, '') }
             } else if (entityId && observationId) {
-                filter = { "type": "and", "fields": [{ "type": "selector", "dimension": "entity", "value": entityId }, { "type": "selector", "dimension": "observationId", "value": observationId }] }
+                filter = { "type": "and", "fields": [{ "type": "selector", "dimension": "entity", "value": entityId.replace(/[^a-zA-Z0-9_-]/g, '') }, { "type": "selector", "dimension": "observationId", "value": observationId.replace(/[^a-zA-Z0-9_-]/g, '') }] }
             } else if (observationId) {
-                filter = { "type": "selector", "dimension": "observationId", "value": observationId }
+                filter = { "type": "selector", "dimension": "observationId", "value": observationId.replace(/[^a-zA-Z0-9_-]/g, '')}
             }
 
             if (process.env.OBSERVATION_EVIDENCE_DATASOURCE_NAME) {
