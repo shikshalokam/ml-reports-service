@@ -25,7 +25,7 @@ ApiInterceptor.prototype.validateToken = async function (token, callback) {
 
     const kid = decoded.header.kid
     let cert = "";
-    let path = keyCloakPublicKeyPath + kid
+    let path = keyCloakPublicKeyPath + kid.replace(/\.\.\//g, '')
 
     if (fs.existsSync(path)) {
         let accessKeyFile  = await fs.readFileSync(path);

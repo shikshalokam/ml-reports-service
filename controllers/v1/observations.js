@@ -1982,31 +1982,30 @@ exports.pdfReportsUrl = async function (req, response) {
 
     let folderPath = Buffer.from(req.query.id, 'base64').toString('ascii');
 
-    let files = fs.readdirSync(__dirname + '/../../' + folderPath );
+    let files = fs.readdirSync(__dirname + '/../../' + folderPath.replace(/\.\.\//g, '')
+    );
     let pdfFile = files.filter( file => file.match(new RegExp(`.*\.(${'.pdf'})`, 'ig')));
    
-    fs.readFile(__dirname + '/../../' + folderPath + '/' + pdfFile, function (err, data) {
+    fs.readFile(__dirname + '/../../' + folderPath.replace(/\.\.\//g, '')    + '/' + pdfFile, function (err, data) {
         if (!err) {
-
-           
             response.writeHead(200, { 'Content-Type': 'application/pdf' });
             response.write(data);
 
 
             try{
-                fs.readdir(__dirname + '/../../' + folderPath, (err, files) => {
+                fs.readdir(__dirname + '/../../' + folderPath.replace(/\.\.\//g, '') , (err, files) => {
                     if (err) throw err;
   
                     var i = 0;
                     for (const file of files) {
                         i = i +1;
-                        fs.unlink(path.join(__dirname + '/../../' + folderPath, file), err => {
+                        fs.unlink(path.join(__dirname + '/../../' + folderPath.replace(/\.\.\//g, '') , file), err => {
                             if (err) throw err;
                         });
                         
                     }
                 });
-                rimraf(__dirname + '/../../' + folderPath, function () { console.log("done"); });
+                rimraf(__dirname + '/../../' + folderPath.replace(/\.\.\//g, '') , function () { console.log("done"); });
     
             }catch(exp){
 
@@ -2274,7 +2273,7 @@ async function instanceCriteriaReportData(req, res) {
         resolve(response);
       } else {
 
-        let submissionId = req.body.submissionId;
+        let submissionId = req.body.submissionId.replace(/[^a-zA-Z0-9_-]/g, '');
 
 
         let bodyParam = gen.utils.getDruidQuery("instance_criteria_report_query");
@@ -2284,7 +2283,7 @@ async function instanceCriteriaReportData(req, res) {
         }
 
         bodyParam.filter = {
-          "type": "and", "fields": [{ "type": "selector", "dimension": "observationSubmissionId", "value": submissionId },
+          "type": "and", "fields": [{ "type": "selector", "dimension": "observationSubmissionId", "value": submissionId.replace(/[^a-zA-Z0-9_-]/g, '') },
           { "type": "not", "field": { "type": "selector", "dimension": "questionAnswer", "value": "" } }]
         };
 
@@ -3032,7 +3031,7 @@ async function observationCriteriaReportData(req, res) {
                   bodyParam.dataSource = process.env.OBSERVATION_DATASOURCE_NAME;
                 }
 
-                bodyParam.filter = {"type": "and", "fields":[{ "type": "selector", "dimension": "observationId", "value": req.body.observationId},
+                bodyParam.filter = {"type": "and", "fields":[{ "type": "selector", "dimension": "observationId", "value": req.body.observationId.replace(/[^a-zA-Z0-9_-]/g, '')},
                                    {"type":"not","field":{"type":"selector","dimension":"questionAnswer","value":""}}]};
                 
 
@@ -3472,17 +3471,17 @@ async function allEvidencesList(req, res) {
           let filter = {};
 
           if (req.body.submissionId && req.body.questionId) {
-            filter = { "type": "and", fields: [{ "type": "selector", "dimension": "observationSubmissionId", "value": req.body.submissionId }, { "type": "selector", "dimension": "questionExternalId", "value": req.body.questionId }] };
+            filter = { "type": "and", fields: [{ "type": "selector", "dimension": "observationSubmissionId", "value": req.body.submissionId.replace(/[^a-zA-Z0-9_-]/g, '') }, { "type": "selector", "dimension": "questionExternalId", "value": req.body.questionId.replace(/[^a-zA-Z0-9_-]/g, '')}] };
           }
           else if (req.body.entityId && req.body.observationId && req.body.questionId) {
             let entityType = "school";
             if(req.body.entityType){
               entityType = req.body.entityType;
             }
-            filter = { "type": "and", fields: [{ "type": "selector", "dimension": "entity", "value": req.body.entityId }, { "type": "selector", "dimension": "observationId", "value": req.body.observationId }, { "type": "selector", "dimension": "questionExternalId", "value": req.body.questionId }] };
+            filter = { "type": "and", fields: [{ "type": "selector", "dimension": "entity", "value": req.body.entityId.replace(/[^a-zA-Z0-9_-]/g, '') }, { "type": "selector", "dimension": "observationId", "value": req.body.observationId.replace(/[^a-zA-Z0-9_-]/g, '') }, { "type": "selector", "dimension": "questionExternalId", "value": req.body.questionId.replace(/[^a-zA-Z0-9_-]/g, '') }] };
           }
           else if (req.body.observationId && req.body.questionId) {
-            filter = { "type": "and", fields: [{ "type": "selector", "dimension": "observationId", "value": req.body.observationId }, { "type": "selector", "dimension": "questionExternalId", "value": req.body.questionId }] };
+            filter = { "type": "and", fields: [{ "type": "selector", "dimension": "observationId", "value": req.body.observationId.replace(/[^a-zA-Z0-9_-]/g, '') }, { "type": "selector", "dimension": "questionExternalId", "value": req.body.questionId.replace(/[^a-zA-Z0-9_-]/g, '') }] };
           }
 
           bodyParam.filter = filter;
@@ -3542,11 +3541,11 @@ async function getEvidenceData(inputObj) {
         let filter = {};
 
         if (submissionId) {
-          filter = { "type": "selector", "dimension": "observationSubmissionId", "value": submissionId }
+          filter = { "type": "selector", "dimension": "observationSubmissionId", "value": submissionId.replace(/[^a-zA-Z0-9_-]/g, '') }
         } else if(entityId && observationId) {
-          filter = {"type":"and","fields":[{"type": "selector", "dimension": "entity", "value": entityId},{"type": "selector", "dimension": "observationId", "value": observationId}]}
+          filter = {"type":"and","fields":[{"type": "selector", "dimension": "entity", "value": entityId.replace(/[^a-zA-Z0-9_-]/g, '')},{"type": "selector", "dimension": "observationId", "value": observationId.replace(/[^a-zA-Z0-9_-]/g, '')}]}
         } else if(observationId) {
-          filter = { "type": "selector", "dimension": "observationId", "value": observationId }
+          filter = { "type": "selector", "dimension": "observationId", "value": observationId.replace(/[^a-zA-Z0-9_-]/g, '') }
         }
 
         if (process.env.OBSERVATION_EVIDENCE_DATASOURCE_NAME) {
