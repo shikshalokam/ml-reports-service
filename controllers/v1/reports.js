@@ -63,7 +63,7 @@ exports.createQuestionResponseReport = async function (req, res) {
             result: false,
             message: err.message
         }
-        res.send(response);
+        res.type("text").send(response);
     }
 }
 
