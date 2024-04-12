@@ -48,7 +48,6 @@ function validateToken(req, res) {
     var promise = new Promise(function (resolve, reject) {
 
         var token = req.headers["x-authenticated-user-token"].replace(/\.\.\//g, '');
-       console.log(token);
         if (req.headers["x-authenticated-user-token"] && !req.path.includes("pdfReportsUrl")) {
 
             apiInterceptor.validateToken(token, function (err, tokenData) {

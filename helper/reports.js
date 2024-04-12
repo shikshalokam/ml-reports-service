@@ -781,7 +781,6 @@ exports.questionResponseReport = async function ( req ,res ) {
         const options = gen.utils.getDruidConnection();
         options.method = "POST";
         options.body = bodyParams;
-        console.log(options);
         const data = await rp(options);
 
         //check data from druid
