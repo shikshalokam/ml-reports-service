@@ -2741,8 +2741,8 @@ const createChart = async function (chartData, imgPath) {
                 let imgFilePath = imgPath + "/" + chartImage;
                 let imageBuffer = await chartJSNodeCanvas.renderToBuffer(data.options);
                 fs.writeFileSync(imgFilePath, imageBuffer);
-
-                formData.push({
+formData
+                .push({
                     order: data.order,
                     value: fs.createReadStream(imgFilePath),
                     options: {
@@ -3154,12 +3154,18 @@ exports.coreStatsReportGeneration = async function (overview) {
 
         let imgPath = __dirname + '/../' + currentTempFolder;
 
+        if (!fs.existsSync(imgPath)) {
+            fs.mkdirSync(imgPath);
+        }
+
         try {
 
-            let formData = [];
-        
+            const options = await createPieChartOptions(overview);           
+            const userOverViewResponseChart = await createChart(options.chartOptions, imgPath);
+            let FormData = [];
+            FormData.push(...userOverViewResponseChart);
             ejs.renderFile(__dirname + '/../views/coreStatsReport.ejs', {
-                data: overview
+                data: userOverViewResponseChart
             })
                 .then(function (dataEjsRender) {
 
@@ -3172,14 +3178,14 @@ exports.coreStatsReportGeneration = async function (overview) {
                         if (errWriteFile) {
                             throw errWriteFile;
                         } else {
-                            let optionFormData = [];
+
                             let optionsHtmlToPdf = gen.utils.getGotenbergConnection();
                             optionsHtmlToPdf.formData = {
                                 files: [
                                 ]
                             };
                             
-                            optionFormData.push({
+                            FormData.push({
                                 value: fs.createReadStream(dir + '/index.html'),
                                 options: {
                                     filename: 'index.html'
@@ -3187,7 +3193,7 @@ exports.coreStatsReportGeneration = async function (overview) {
                                 
                             });
 
-                            optionsHtmlToPdf.formData.files = optionFormData;
+                            optionsHtmlToPdf.formData.files = FormData;
                             rp(optionsHtmlToPdf)
                                 .then(function (responseHtmlToPdf) {
                                     let pdfBuffer = Buffer.from(responseHtmlToPdf.body);
@@ -3265,4 +3271,52 @@ exports.coreStatsReportGeneration = async function (overview) {
           return reject(err);
         }
     })
+}
+
+
+const createPieChartOptions =async function(chartOptions){
+
+    try{
+
+        let chartDataArray = [];
+        let labelArray = [];
+
+        await Promise.all(Object.entries(chartOptions).map(([key, value] )=> {
+            labelArray.push(key);
+            chartDataArray.push(value)
+        }))
+        let chart = [{
+            options : {
+
+            type: "pie",
+            data: {
+                labels: labelArray,
+                datasets: [{
+                    backgroundColor: ['#FFA971', '#F6DB6C', '#98CBED', '#C9A0DA'],
+                    data: chartDataArray
+                }]
+            },
+        
+            options: {
+                plugins: {
+                    datalabels: {
+                      display: false
+                    }
+                },
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        "fontSize": 14,
+                    }
+                    
+                },
+            }
+        }
+        }]
+       return{chartOptions :chart} 
+    }catch (error) {
+        throw error;
+    }
+
 }
