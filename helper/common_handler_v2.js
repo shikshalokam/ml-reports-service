@@ -3145,3 +3145,124 @@ const createChartOption = async function(questionData) {
         throw error;
     }
 } 
+
+//core service stats report generation
+exports.coreStatsReportGeneration = async function (overview) {
+
+    return new Promise(async function (resolve, reject) {
+        let currentTempFolder = 'tmp/' + uuidv4() + "--" + Math.floor(Math.random() * (10000 - 10 + 1) + 10)
+
+        let imgPath = __dirname + '/../' + currentTempFolder;
+
+        try {
+
+            let formData = [];
+        
+            ejs.renderFile(__dirname + '/../views/coreStatsReport.ejs', {
+                data: overview
+            })
+                .then(function (dataEjsRender) {
+
+                    let dir = imgPath;
+                    if (!fs.existsSync(dir)) {
+                        fs.mkdirSync(dir);
+                    }
+
+                    fs.writeFile(dir + '/index.html', dataEjsRender, function (errWriteFile, dataWriteFile) {
+                        if (errWriteFile) {
+                            throw errWriteFile;
+                        } else {
+                            let optionFormData = [];
+                            let optionsHtmlToPdf = gen.utils.getGotenbergConnection();
+                            optionsHtmlToPdf.formData = {
+                                files: [
+                                ]
+                            };
+                            
+                            optionFormData.push({
+                                value: fs.createReadStream(dir + '/index.html'),
+                                options: {
+                                    filename: 'index.html'
+                                }
+                                
+                            });
+
+                            optionsHtmlToPdf.formData.files = optionFormData;
+                            rp(optionsHtmlToPdf)
+                                .then(function (responseHtmlToPdf) {
+                                    let pdfBuffer = Buffer.from(responseHtmlToPdf.body);
+                                    if (responseHtmlToPdf.statusCode == 200) {
+                                     
+                                        let pdfFile = uuidv4() + ".pdf";
+                                        fs.writeFile(dir + '/' + pdfFile, pdfBuffer, 'binary', async function (err) {
+                                            if (err) {
+                                                return console.log(err);
+                                            }
+                                            else {
+                                                let uploadFileResponse = await uploadPdfToCloud(pdfFile, dir);
+                                                if (uploadFileResponse.success) {
+                                                    let pdfDownloadableUrl = await getDownloadableUrl(uploadFileResponse.data);
+                                                    if (pdfDownloadableUrl.success && pdfDownloadableUrl.data.result && Object.keys(pdfDownloadableUrl.data.result).length > 0) {
+                                                        
+                                                        fs.readdir(imgPath, (err, files) => {
+                                                            if (err) throw err;
+                                                            
+                                                            let i = 0;
+                                                            for (const file of files) {
+
+                                                                fs.unlink(path.join(imgPath, file), err => {
+                                                                    if (err) throw err;
+                                                                });
+
+                                                                if (i == files.length) {
+                                                                    fs.unlink('../../' + currentTempFolder, err => {
+                                                                        if (err) throw err;
+
+                                                                    });                                                                   
+                                                                }
+
+                                                                i = i + 1;
+
+                                                            }
+                                                        });
+                                                        rimraf(imgPath,function () { console.log("done")});
+
+                                                        return resolve({
+                                                            status: filesHelper.status_success,
+                                                            message: filesHelper.pdf_report_generated,
+                                                            pdfUrl: pdfDownloadableUrl.data.result.url
+                                                        });
+                                                    }
+                                                    else {
+                                                        return resolve({
+                                                            status: filesHelper.status_failure,
+                                                            message: pdfDownloadableUrl.message ? pdfDownloadableUrl.message : filesHelper.could_not_generate_pdf,
+                                                            pdfUrl: ""
+                                                        })
+                                                    }
+                                                }
+                                                else {
+                                                    return resolve({
+                                                        status: filesHelper.status_failure,
+                                                        message: uploadFileResponse.message ? uploadFileResponse.message : filesHelper.could_not_generate_pdf,
+                                                        pdfUrl: ""
+                                                    })
+                                                }
+                                            }
+                                        
+                                    });
+                                }
+
+                            }).catch(err => {
+                                console.log(err);
+                                reject(err);
+                            })
+                        }
+                    })
+                })
+        }
+        catch (err) {
+          return reject(err);
+        }
+    })
+}
